@@ -1,8 +1,10 @@
+import random
+from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import Admin
-from app.schemas import AdminCreate, AdminLogin, Token, AdminResponse
+from app.models import Admin, PasswordReset
+from app.schemas import AdminCreate, AdminLogin, Token, AdminResponse, ForgotPasswordRequest, ResetPasswordRequest
 from app.auth import hash_password, verify_password, create_access_token, get_current_admin
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
@@ -48,3 +50,47 @@ def login(data: AdminLogin, db: Session = Depends(get_db)):
 @router.get("/me", response_model=AdminResponse)
 def get_me(admin: Admin = Depends(get_current_admin)):
     return AdminResponse.model_validate(admin)
+
+
+@router.post("/forgot-password")
+def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    admin = db.query(Admin).filter(Admin.email == data.email).first()
+    if not admin:
+        raise HTTPException(status_code=404, detail="No account found with this email")
+
+    code = str(random.randint(100000, 999999))
+    reset = PasswordReset(
+        code=code,
+        admin_id=admin.id,
+        expires_at=datetime.utcnow() + timedelta(minutes=10),
+    )
+    db.add(reset)
+    db.commit()
+
+    return {"message": "Reset code generated", "code": code, "expires_in_minutes": 10}
+
+
+@router.post("/reset-password")
+def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
+    admin = db.query(Admin).filter(Admin.email == data.email).first()
+    if not admin:
+        raise HTTPException(status_code=404, detail="No account found with this email")
+
+    reset = (
+        db.query(PasswordReset)
+        .filter(
+            PasswordReset.admin_id == admin.id,
+            PasswordReset.code == data.code,
+            PasswordReset.used == False,
+            PasswordReset.expires_at > datetime.utcnow(),
+        )
+        .first()
+    )
+    if not reset:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset code")
+
+    admin.hashed_password = hash_password(data.new_password)
+    reset.used = True
+    db.commit()
+
+    return {"message": "Password reset successfully"}

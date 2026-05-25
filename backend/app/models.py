@@ -85,6 +85,19 @@ class CandidateAnswer(Base):
     question = relationship("Question")
 
 
+class PasswordReset(Base):
+    __tablename__ = "password_resets"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    code = Column(String(6), nullable=False)
+    admin_id = Column(String(36), ForeignKey("admins.id"), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    used = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    admin = relationship("Admin")
+
+
 class Notification(Base):
     __tablename__ = "notifications"
 

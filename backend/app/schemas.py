@@ -31,6 +31,16 @@ class Token(BaseModel):
     admin: AdminResponse
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    code: str
+    new_password: str
+
+
 # Test schemas
 class GeneratePreview(BaseModel):
     topic: str

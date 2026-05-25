@@ -9,6 +9,7 @@ import CreateTest from '@/pages/CreateTest';
 import TestDetail from '@/pages/TestDetail';
 import TestEntry from '@/pages/TestEntry';
 import TakeTest from '@/pages/TakeTest';
+import ForgotPassword from '@/pages/ForgotPassword';
 import AdminLayout from '@/components/AdminLayout';
 import { ReactNode } from 'react';
 
@@ -32,6 +33,7 @@ function App() {
           {/* Guest routes */}
           <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
           <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
+          <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
 
           {/* Admin routes */}
           <Route path="/dashboard" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
