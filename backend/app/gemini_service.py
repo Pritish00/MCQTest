@@ -57,14 +57,16 @@ def generate_mcq_questions(topic: str, num_questions: int) -> list[dict]:
 
     # Split into batches of 10 to avoid token limits
     all_questions = []
-    remaining = num_questions
-    while remaining > 0:
-        batch_size = min(remaining, 10)
-        batch = _generate_batch(client, topic, batch_size)
-        all_questions.extend(batch)
-        remaining = num_questions - len(all_questions)
-        # Safety: break if we got at least what we need or retried too many times
-        if len(all_questions) >= num_questions:
-            break
+    max_retries = 10
+    retries = 0
+    while len(all_questions) < num_questions and retries < max_retries:
+        needed = num_questions - len(all_questions)
+        batch_size = min(needed, 10)
+        try:
+            batch = _generate_batch(client, topic, batch_size)
+            all_questions.extend(batch[:needed])
+        except Exception:
+            pass
+        retries += 1
 
     return all_questions[:num_questions]
