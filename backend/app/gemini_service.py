@@ -61,7 +61,7 @@ def generate_mcq_questions(topic: str, num_questions: int) -> list[dict]:
     retries = 0
     while len(all_questions) < num_questions and retries < max_retries:
         needed = num_questions - len(all_questions)
-        batch_size = min(needed, 10)
+        batch_size = min(needed, 15)
         try:
             batch = _generate_batch(client, topic, batch_size)
             all_questions.extend(batch[:needed])

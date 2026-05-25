@@ -131,6 +131,11 @@ class StartAttempt(BaseModel):
     pin: str
 
 
+class SaveAnswer(BaseModel):
+    question_id: str
+    selected_option: str
+
+
 class SubmitAnswer(BaseModel):
     question_id: str
     selected_option: Optional[str] = None
@@ -138,6 +143,13 @@ class SubmitAnswer(BaseModel):
 
 class SubmitTest(BaseModel):
     answers: list[SubmitAnswer]
+
+
+class ResumeResponse(BaseModel):
+    attempt_id: str
+    test: TestPublic
+    saved_answers: dict[str, str]
+    elapsed_seconds: int
 
 
 class AnswerResponse(BaseModel):

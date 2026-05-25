@@ -6,6 +6,7 @@ from app.models import Test, Question, TestAttempt, CandidateAnswer
 from app.schemas import (
     StartAttempt, SubmitTest, TestPublic, QuestionPublic,
     AttemptDetailResponse, ResultResponse, AnswerDetailResponse,
+    SaveAnswer, ResumeResponse,
 )
 
 router = APIRouter(prefix="/api/attempt", tags=["Test Attempts"])
@@ -32,6 +33,18 @@ def start_attempt(data: StartAttempt, db: Session = Depends(get_db)):
         .first()
     )
     if existing:
+        if not existing.is_completed:
+            # Allow resume — return existing attempt
+            questions = sorted(test.questions, key=lambda q: q.order_num)
+            test_data = TestPublic(
+                id=test.id,
+                title=test.title,
+                topic=test.topic,
+                time_limit_minutes=test.time_limit_minutes,
+                num_questions=test.num_questions,
+                questions=[QuestionPublic.model_validate(q) for q in questions],
+            )
+            return {"attempt_id": existing.id, "test": test_data.model_dump(), "resumed": True}
         raise HTTPException(status_code=400, detail="You have already attempted this test")
 
     attempt = TestAttempt(
@@ -60,6 +73,71 @@ def start_attempt(data: StartAttempt, db: Session = Depends(get_db)):
     }
 
 
+@router.post("/{attempt_id}/save-answer")
+def save_answer(attempt_id: str, data: SaveAnswer, db: Session = Depends(get_db)):
+    attempt = db.query(TestAttempt).filter(TestAttempt.id == attempt_id).first()
+    if not attempt:
+        raise HTTPException(status_code=404, detail="Attempt not found")
+    if attempt.is_completed:
+        raise HTTPException(status_code=400, detail="Test already submitted")
+
+    existing = (
+        db.query(CandidateAnswer)
+        .filter(
+            CandidateAnswer.attempt_id == attempt_id,
+            CandidateAnswer.question_id == data.question_id,
+        )
+        .first()
+    )
+    if existing:
+        existing.selected_option = data.selected_option
+    else:
+        db.add(CandidateAnswer(
+            selected_option=data.selected_option,
+            is_correct=False,
+            attempt_id=attempt_id,
+            question_id=data.question_id,
+        ))
+    db.commit()
+    return {"status": "saved"}
+
+
+@router.get("/{attempt_id}/resume", response_model=ResumeResponse)
+def resume_attempt(attempt_id: str, db: Session = Depends(get_db)):
+    attempt = (
+        db.query(TestAttempt)
+        .options(
+            joinedload(TestAttempt.answers),
+            joinedload(TestAttempt.test).joinedload(Test.questions),
+        )
+        .filter(TestAttempt.id == attempt_id)
+        .first()
+    )
+    if not attempt:
+        raise HTTPException(status_code=404, detail="Attempt not found")
+    if attempt.is_completed:
+        raise HTTPException(status_code=400, detail="Test already submitted")
+
+    elapsed = int((datetime.utcnow() - attempt.started_at).total_seconds())
+    questions = sorted(attempt.test.questions, key=lambda q: q.order_num)
+    test_data = TestPublic(
+        id=attempt.test.id,
+        title=attempt.test.title,
+        topic=attempt.test.topic,
+        time_limit_minutes=attempt.test.time_limit_minutes,
+        num_questions=attempt.test.num_questions,
+        questions=[QuestionPublic.model_validate(q) for q in questions],
+    )
+    saved_answers = {a.question_id: a.selected_option for a in attempt.answers if a.selected_option}
+
+    return ResumeResponse(
+        attempt_id=attempt.id,
+        test=test_data,
+        saved_answers=saved_answers,
+        elapsed_seconds=elapsed,
+    )
+
+
 @router.post("/{attempt_id}/submit", response_model=ResultResponse)
 def submit_attempt(attempt_id: str, data: SubmitTest, db: Session = Depends(get_db)):
     attempt = (
@@ -76,6 +154,12 @@ def submit_attempt(attempt_id: str, data: SubmitTest, db: Session = Depends(get_
     # Build question lookup
     questions_map = {q.id: q for q in attempt.test.questions}
 
+    # Build existing saved answers lookup
+    existing_answers = {
+        a.question_id: a
+        for a in db.query(CandidateAnswer).filter(CandidateAnswer.attempt_id == attempt.id).all()
+    }
+
     score = 0
     for ans in data.answers:
         question = questions_map.get(ans.question_id)
@@ -85,13 +169,16 @@ def submit_attempt(attempt_id: str, data: SubmitTest, db: Session = Depends(get_
         if is_correct:
             score += 1
 
-        candidate_answer = CandidateAnswer(
-            selected_option=ans.selected_option,
-            is_correct=is_correct,
-            attempt_id=attempt.id,
-            question_id=ans.question_id,
-        )
-        db.add(candidate_answer)
+        if ans.question_id in existing_answers:
+            existing_answers[ans.question_id].selected_option = ans.selected_option
+            existing_answers[ans.question_id].is_correct = is_correct
+        else:
+            db.add(CandidateAnswer(
+                selected_option=ans.selected_option,
+                is_correct=is_correct,
+                attempt_id=attempt.id,
+                question_id=ans.question_id,
+            ))
 
     attempt.score = score
     attempt.is_completed = True

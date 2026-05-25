@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '@/lib/api';
 import { TestPublic, ResultResponse } from '@/types';
 import {
   ChevronLeft, ChevronRight, Clock, Send, AlertTriangle,
-  CheckCircle2, XCircle, Trophy, RotateCcw, Maximize,
+  CheckCircle2, XCircle, Trophy, RotateCcw, Maximize, ShieldAlert,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -20,6 +20,9 @@ export default function TakeTest() {
   const [result, setResult] = useState<ResultResponse | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [fullscreenWarning, setFullscreenWarning] = useState(false);
+  const [tabWarnings, setTabWarnings] = useState(0);
+  const [showTabWarning, setShowTabWarning] = useState(false);
+  const initDone = useRef(false);
 
   const enterFullscreen = useCallback(() => {
     const el = document.documentElement;
@@ -28,19 +31,63 @@ export default function TakeTest() {
     else if ((el as any).msRequestFullscreen) (el as any).msRequestFullscreen();
   }, []);
 
+  // Init: load from localStorage, handle resume
   useEffect(() => {
-    const savedAttemptId = sessionStorage.getItem('attempt_id');
-    const savedTest = sessionStorage.getItem('test_data');
+    if (initDone.current) return;
+    initDone.current = true;
+
+    const savedAttemptId = localStorage.getItem('attempt_id');
+    const savedTest = localStorage.getItem('test_data');
+    const resumed = localStorage.getItem('attempt_resumed');
+
     if (!savedAttemptId || !savedTest) {
       navigate(`/test/${testId}`);
       return;
     }
+
     const parsed = JSON.parse(savedTest) as TestPublic;
     setTest(parsed);
     setAttemptId(savedAttemptId);
-    setTimeLeft(parsed.time_limit_minutes * 60);
+
+    if (resumed) {
+      // Fetch saved answers and remaining time from server
+      localStorage.removeItem('attempt_resumed');
+      api.get(`/attempt/${savedAttemptId}/resume`).then((res) => {
+        const { saved_answers, elapsed_seconds } = res.data;
+        setAnswers(saved_answers || {});
+        const remaining = Math.max(0, parsed.time_limit_minutes * 60 - elapsed_seconds);
+        setTimeLeft(remaining);
+      }).catch(() => {
+        setTimeLeft(parsed.time_limit_minutes * 60);
+      });
+    } else {
+      // Restore answers from localStorage if available
+      const savedAnswers = localStorage.getItem(`answers_${savedAttemptId}`);
+      if (savedAnswers) {
+        try { setAnswers(JSON.parse(savedAnswers)); } catch {}
+      }
+      const savedTime = localStorage.getItem(`timeLeft_${savedAttemptId}`);
+      if (savedTime) {
+        setTimeLeft(parseInt(savedTime) || parsed.time_limit_minutes * 60);
+      } else {
+        setTimeLeft(parsed.time_limit_minutes * 60);
+      }
+    }
     enterFullscreen();
   }, [testId, navigate, enterFullscreen]);
+
+  // Persist answers and timeLeft to localStorage
+  useEffect(() => {
+    if (attemptId && Object.keys(answers).length > 0) {
+      localStorage.setItem(`answers_${attemptId}`, JSON.stringify(answers));
+    }
+  }, [answers, attemptId]);
+
+  useEffect(() => {
+    if (attemptId && timeLeft > 0) {
+      localStorage.setItem(`timeLeft_${attemptId}`, String(timeLeft));
+    }
+  }, [timeLeft, attemptId]);
 
   // Detect fullscreen exit
   useEffect(() => {
@@ -60,12 +107,61 @@ export default function TakeTest() {
     };
   }, [result]);
 
+  // Block keyboard shortcuts: F12, Ctrl+Shift+I/J/C, Ctrl+U
+  useEffect(() => {
+    if (result) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F12') { e.preventDefault(); return; }
+      if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); return; }
+      if (e.ctrlKey && e.key.toUpperCase() === 'U') { e.preventDefault(); return; }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [result]);
+
+  // Block right-click
+  useEffect(() => {
+    if (result) return;
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+    document.addEventListener('contextmenu', handleContextMenu);
+    return () => document.removeEventListener('contextmenu', handleContextMenu);
+  }, [result]);
+
+  // Detect tab switch / visibility change
+  useEffect(() => {
+    if (result) return;
+    const handleVisChange = () => {
+      if (document.hidden) {
+        setTabWarnings((prev) => {
+          const next = prev + 1;
+          if (next >= 3) {
+            toast.error('Too many tab switches! Submitting test...');
+            // Auto-submit after 3 tab switches
+            setTimeout(() => submitTestRef.current?.(), 500);
+          } else {
+            setShowTabWarning(true);
+          }
+          return next;
+        });
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisChange);
+    return () => document.removeEventListener('visibilitychange', handleVisChange);
+  }, [result]);
+
   // Exit fullscreen on result
   useEffect(() => {
     if (result && document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     }
-  }, [result]);
+    if (result) {
+      // Clean up localStorage
+      localStorage.removeItem('attempt_id');
+      localStorage.removeItem('test_data');
+      localStorage.removeItem(`answers_${attemptId}`);
+      localStorage.removeItem(`timeLeft_${attemptId}`);
+    }
+  }, [result, attemptId]);
 
   const submitTest = useCallback(async () => {
     if (!test || !attemptId || submitting) return;
@@ -77,14 +173,24 @@ export default function TakeTest() {
       }));
       const res = await api.post(`/attempt/${attemptId}/submit`, { answers: answersList });
       setResult(res.data);
-      sessionStorage.removeItem('attempt_id');
-      sessionStorage.removeItem('test_data');
     } catch (err: any) {
       toast.error(err.response?.data?.detail || 'Failed to submit test');
     } finally {
       setSubmitting(false);
     }
   }, [test, attemptId, answers, submitting]);
+
+  const submitTestRef = useRef(submitTest);
+  useEffect(() => { submitTestRef.current = submitTest; }, [submitTest]);
+
+  // Auto-save answer to server
+  const saveAnswerToServer = useCallback((questionId: string, option: string) => {
+    if (!attemptId) return;
+    api.post(`/attempt/${attemptId}/save-answer`, {
+      question_id: questionId,
+      selected_option: option,
+    }).catch(() => {});
+  }, [attemptId]);
 
   // Timer
   useEffect(() => {
@@ -173,6 +279,7 @@ export default function TakeTest() {
 
   const selectAnswer = (option: string) => {
     setAnswers((prev) => ({ ...prev, [currentQ.id]: option }));
+    saveAnswerToServer(currentQ.id, option);
   };
 
   return (
@@ -334,6 +441,30 @@ export default function TakeTest() {
               className="w-full inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors text-sm"
             >
               <Maximize className="w-4 h-4" /> Return to Fullscreen
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Tab switch warning */}
+      {showTabWarning && !result && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center">
+            <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <ShieldAlert className="w-7 h-7 text-orange-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Tab Switch Detected!</h3>
+            <p className="text-sm text-gray-600 mb-2">
+              Switching tabs during the test is not allowed.
+            </p>
+            <p className="text-xs text-red-600 font-medium mb-6">
+              Warning {tabWarnings} of 3 — your test will be auto-submitted after 3 violations.
+            </p>
+            <button
+              onClick={() => { setShowTabWarning(false); enterFullscreen(); }}
+              className="w-full inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors text-sm"
+            >
+              Continue Test
             </button>
           </div>
         </div>

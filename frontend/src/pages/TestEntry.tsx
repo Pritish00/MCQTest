@@ -21,9 +21,12 @@ export default function TestEntry() {
         candidate_email: email,
         pin,
       });
-      // Store attempt data and navigate to test
-      sessionStorage.setItem('attempt_id', res.data.attempt_id);
-      sessionStorage.setItem('test_data', JSON.stringify(res.data.test));
+      // Store attempt data in localStorage (survives tab close)
+      localStorage.setItem('attempt_id', res.data.attempt_id);
+      localStorage.setItem('test_data', JSON.stringify(res.data.test));
+      if (res.data.resumed) {
+        localStorage.setItem('attempt_resumed', 'true');
+      }
       navigate(`/test/${testId}/take`);
     } catch (err: any) {
       toast.error(err.response?.data?.detail || 'Failed to start test');
