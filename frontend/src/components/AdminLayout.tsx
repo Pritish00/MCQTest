@@ -28,7 +28,7 @@ export default function AdminLayout() {
   const fetchNotifications = async () => {
     try {
       const res = await api.get('/notifications');
-      setNotifications(res.data);
+      if (Array.isArray(res.data)) setNotifications(res.data);
     } catch {}
   };
 
