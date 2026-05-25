@@ -148,46 +148,12 @@ export default function CreateTest() {
   // Step 2: Preview questions
   if (preview) {
     return (
-      <div className="max-w-3xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Review Questions</h1>
-            <p className="text-gray-600 text-base mt-1">
-              {preview.length} questions on <strong>{topic}</strong> — review before finalizing
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setPreview(null)}
-              className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-3 rounded-xl font-medium transition-colors text-sm"
-            >
-              <ArrowLeft className="w-4 h-4" /> Go Back
-            </button>
-            <button
-              onClick={handleRegenerate}
-              disabled={generating}
-              className="inline-flex items-center gap-2 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 px-5 py-3 rounded-xl font-medium transition-colors text-sm disabled:opacity-50"
-            >
-              {generating ? (
-                <div className="w-4 h-4 border-2 border-yellow-400/30 border-t-yellow-600 rounded-full animate-spin" />
-              ) : (
-                <RefreshCw className="w-4 h-4" />
-              )}
-              Regenerate
-            </button>
-            <button
-              onClick={handleFinalize}
-              disabled={saving}
-              className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors text-sm disabled:opacity-50"
-            >
-              {saving ? (
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <Check className="w-4 h-4" />
-              )}
-              Finalize Test
-            </button>
-          </div>
+      <div className="max-w-3xl mx-auto pb-24">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Review Questions</h1>
+          <p className="text-gray-600 text-base mt-1">
+            {preview.length} questions on <strong>{topic}</strong> — review before finalizing
+          </p>
         </div>
 
         <div className="space-y-4">
@@ -220,31 +186,44 @@ export default function CreateTest() {
           ))}
         </div>
 
-        <div className="sticky bottom-4 mt-6">
-          <div className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-2xl p-4 flex items-center justify-between shadow-lg">
-            <p className="text-sm text-gray-600">
-              {preview.length} questions ready · <strong>{title}</strong> · {timeLimit} min
-            </p>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleRegenerate}
-                disabled={generating}
-                className="inline-flex items-center gap-2 text-yellow-700 hover:bg-yellow-50 px-4 py-2 rounded-xl font-medium transition-colors text-sm disabled:opacity-50"
-              >
-                <RefreshCw className="w-4 h-4" /> Regenerate
-              </button>
-              <button
-                onClick={handleFinalize}
-                disabled={saving}
-                className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-colors text-sm disabled:opacity-50"
-              >
-                {saving ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <Check className="w-4 h-4" />
-                )}
-                Finalize Test
-              </button>
+        <div className="fixed bottom-0 left-0 right-0 z-40">
+          <div className="max-w-3xl mx-auto px-4 pb-4">
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 flex items-center justify-between shadow-xl">
+              <p className="text-sm text-gray-600">
+                {preview.length} questions · <strong>{title}</strong> · {timeLimit} min
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPreview(null)}
+                  className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl font-medium transition-colors text-sm"
+                >
+                  <ArrowLeft className="w-4 h-4" /> Go Back
+                </button>
+                <button
+                  onClick={handleRegenerate}
+                  disabled={generating}
+                  className="inline-flex items-center gap-2 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 px-4 py-2.5 rounded-xl font-medium transition-colors text-sm disabled:opacity-50"
+                >
+                  {generating ? (
+                    <div className="w-4 h-4 border-2 border-yellow-400/30 border-t-yellow-600 rounded-full animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4" />
+                  )}
+                  Regenerate
+                </button>
+                <button
+                  onClick={handleFinalize}
+                  disabled={saving}
+                  className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-xl font-semibold transition-colors text-sm disabled:opacity-50"
+                >
+                  {saving ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <Check className="w-4 h-4" />
+                  )}
+                  Finalize Test
+                </button>
+              </div>
             </div>
           </div>
         </div>
