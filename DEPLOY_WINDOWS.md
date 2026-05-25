@@ -43,8 +43,8 @@ pip install bcrypt==4.0.1
 Edit `C:\MCQTest\backend\.env`:
 
 ```
-DATABASE_URL=mssql+pyodbc://vidya:Vidya%4041@103.20.214.144:12433/vidyaos?driver=ODBC+Driver+17+for+SQL+Server
-SECRET_KEY=mcq-platform-super-secret-key-2024
+DATABASE_URL=mssql+pyodbc://USER:PASSWORD@HOST:PORT/DATABASE?driver=ODBC+Driver+17+for+SQL+Server
+SECRET_KEY=your-secret-key-here
 GROQ_API_KEY=your-groq-api-key-here
 ```
 

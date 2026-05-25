@@ -39,9 +39,9 @@ pip install -r requirements.txt
 
 Edit `backend/.env`:
 ```
-DATABASE_URL=mssql+pyodbc://sa:YourPassword@localhost:1433/MCQTestDB?driver=ODBC+Driver+17+for+SQL+Server
+DATABASE_URL=mssql+pyodbc://USER:PASSWORD@HOST:PORT/DATABASE?driver=ODBC+Driver+17+for+SQL+Server
 SECRET_KEY=your-secret-key
-GEMINI_API_KEY=your-google-gemini-api-key
+GROQ_API_KEY=your-groq-api-key-here
 ```
 
 Run the server:
