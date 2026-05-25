@@ -4,7 +4,7 @@ import api from '@/lib/api';
 import { TestListItem } from '@/types';
 import {
   PlusCircle, Users, Clock, Hash, Copy, Eye, Trash2,
-  ToggleLeft, ToggleRight, FileText, AlertCircle,
+  ToggleLeft, ToggleRight, FileText, AlertCircle, Link2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -41,10 +41,14 @@ export default function Dashboard() {
     }
   };
 
-  const copyLink = (test: TestListItem) => {
-    const link = `${window.location.origin}/test/${test.id}`;
-    copyToClipboard(`Test Link: ${link}\nPIN: ${test.pin}`);
-    toast.success('Link & PIN copied!');
+  const copyLinkOnly = (test: TestListItem) => {
+    copyToClipboard(`${window.location.origin}/test/${test.id}`);
+    toast.success('Link copied!');
+  };
+
+  const copyPinOnly = (test: TestListItem) => {
+    copyToClipboard(test.pin);
+    toast.success('PIN copied!');
   };
 
   const toggleTest = async (id: string) => {
@@ -180,11 +184,18 @@ export default function Dashboard() {
                 </div>
                 <div className="flex items-center gap-1 ml-4">
                   <button
-                    onClick={() => copyLink(test)}
+                    onClick={() => copyLinkOnly(test)}
+                    className="group relative p-3 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
+                  >
+                    <Link2 className="w-5 h-5" />
+                    <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Copy Link</span>
+                  </button>
+                  <button
+                    onClick={() => copyPinOnly(test)}
                     className="group relative p-3 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all"
                   >
                     <Copy className="w-5 h-5" />
-                    <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Copy Link & PIN</span>
+                    <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Copy PIN</span>
                   </button>
                   <button
                     onClick={() => navigate(`/dashboard/test/${test.id}`)}

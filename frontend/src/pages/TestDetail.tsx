@@ -4,7 +4,7 @@ import api from '@/lib/api';
 import { Test, AnswerDetail, TestAttempt } from '@/types';
 import {
   ArrowLeft, Copy, Clock, Hash, Users, FileText, Download,
-  CheckCircle2, XCircle, User, Mail, Eye, X,
+  CheckCircle2, XCircle, User, Mail, Eye, X, Link,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import jsPDF from 'jspdf';
@@ -127,11 +127,16 @@ export default function TestDetail() {
     }
   };
 
-  const copyLink = () => {
+  const copyLinkOnly = () => {
     if (!test) return;
-    const link = `${window.location.origin}/test/${test.id}`;
-    copyToClipboard(`Test: ${test.title}\nLink: ${link}\nPIN: ${test.pin}`);
-    toast.success('Link & PIN copied!');
+    copyToClipboard(`${window.location.origin}/test/${test.id}`);
+    toast.success('Link copied!');
+  };
+
+  const copyPinOnly = () => {
+    if (!test) return;
+    copyToClipboard(test.pin);
+    toast.success('PIN copied!');
   };
 
   const downloadPDF = () => {
@@ -236,8 +241,11 @@ export default function TestDetail() {
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={copyLink} title="Copy test link and PIN to clipboard" className="inline-flex items-center gap-2 bg-primary-50 hover:bg-primary-100 text-primary-700 px-5 py-3 rounded-xl text-base font-medium transition-colors">
-              <Copy className="w-5 h-5" /> Copy Link
+            <button onClick={copyLinkOnly} title="Copy test link" className="inline-flex items-center gap-2 bg-primary-50 hover:bg-primary-100 text-primary-700 px-4 py-3 rounded-xl text-sm font-medium transition-colors">
+              <Link className="w-4 h-4" /> Copy Link
+            </button>
+            <button onClick={copyPinOnly} title="Copy PIN code" className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-xl text-sm font-medium transition-colors">
+              <Copy className="w-4 h-4" /> Copy PIN
             </button>
             <button onClick={downloadPDF} title="Download questions, answers and results as PDF" className="inline-flex items-center gap-2 bg-green-50 hover:bg-green-100 text-green-700 px-5 py-3 rounded-xl text-base font-medium transition-colors">
               <Download className="w-5 h-5" /> Download PDF

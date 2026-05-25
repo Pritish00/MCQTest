@@ -4,7 +4,7 @@ import api from '@/lib/api';
 import { TestPublic, ResultResponse } from '@/types';
 import {
   ChevronLeft, ChevronRight, Clock, Send, AlertTriangle,
-  CheckCircle2, XCircle, Trophy, RotateCcw,
+  CheckCircle2, XCircle, Trophy, RotateCcw, Maximize,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -19,6 +19,14 @@ export default function TakeTest() {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<ResultResponse | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [fullscreenWarning, setFullscreenWarning] = useState(false);
+
+  const enterFullscreen = useCallback(() => {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    else if ((el as any).webkitRequestFullscreen) (el as any).webkitRequestFullscreen();
+    else if ((el as any).msRequestFullscreen) (el as any).msRequestFullscreen();
+  }, []);
 
   useEffect(() => {
     const savedAttemptId = sessionStorage.getItem('attempt_id');
@@ -31,7 +39,33 @@ export default function TakeTest() {
     setTest(parsed);
     setAttemptId(savedAttemptId);
     setTimeLeft(parsed.time_limit_minutes * 60);
-  }, [testId, navigate]);
+    enterFullscreen();
+  }, [testId, navigate, enterFullscreen]);
+
+  // Detect fullscreen exit
+  useEffect(() => {
+    if (result) return;
+    const handleFsChange = () => {
+      if (!document.fullscreenElement && !result) {
+        setFullscreenWarning(true);
+      } else {
+        setFullscreenWarning(false);
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFsChange);
+      document.removeEventListener('webkitfullscreenchange', handleFsChange);
+    };
+  }, [result]);
+
+  // Exit fullscreen on result
+  useEffect(() => {
+    if (result && document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+  }, [result]);
 
   const submitTest = useCallback(async () => {
     if (!test || !attemptId || submitting) return;
@@ -283,6 +317,27 @@ export default function TakeTest() {
           </div>
         </div>
       </div>
+
+      {/* Fullscreen warning overlay */}
+      {fullscreenWarning && !result && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center">
+            <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-7 h-7 text-red-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Fullscreen Required</h3>
+            <p className="text-sm text-gray-600 mb-6">
+              You must stay in fullscreen mode during the test. Exiting fullscreen is not allowed.
+            </p>
+            <button
+              onClick={() => { enterFullscreen(); setFullscreenWarning(false); }}
+              className="w-full inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors text-sm"
+            >
+              <Maximize className="w-4 h-4" /> Return to Fullscreen
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Confirm modal */}
       {showConfirm && (
