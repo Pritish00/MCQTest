@@ -83,3 +83,15 @@ class CandidateAnswer(Base):
 
     attempt = relationship("TestAttempt", back_populates="answers")
     question = relationship("Question")
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    message = Column(Text, nullable=False)
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    admin_id = Column(String(36), ForeignKey("admins.id"), nullable=False)
+
+    admin = relationship("Admin")

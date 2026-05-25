@@ -2,7 +2,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
-from app.models import Test, Question, TestAttempt, CandidateAnswer
+from app.models import Test, Question, TestAttempt, CandidateAnswer, Notification
 from app.schemas import (
     StartAttempt, SubmitTest, TestPublic, QuestionPublic,
     AttemptDetailResponse, ResultResponse, AnswerDetailResponse,
@@ -183,9 +183,15 @@ def submit_attempt(attempt_id: str, data: SubmitTest, db: Session = Depends(get_
     attempt.score = score
     attempt.is_completed = True
     attempt.completed_at = datetime.utcnow()
-    db.commit()
 
+    # Create notification for the test admin
     percentage = round((score / attempt.total_questions) * 100, 1) if attempt.total_questions > 0 else 0
+    notif = Notification(
+        message=f"{attempt.candidate_name} completed \"{attempt.test.title}\" — scored {score}/{attempt.total_questions} ({percentage}%)",
+        admin_id=attempt.test.admin_id,
+    )
+    db.add(notif)
+    db.commit()
 
     return ResultResponse(
         score=score,

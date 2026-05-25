@@ -16,6 +16,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #f8fafc;
   color: #1e293b;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.dark body,
+body:is(.dark *) {
+  background-color: #0f172a;
+  color: #e2e8f0;
 }
 
 #root {

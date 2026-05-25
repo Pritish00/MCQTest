@@ -217,34 +217,34 @@ export default function TestDetail() {
     <div>
       <button
         onClick={() => navigate('/dashboard')}
-        className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 text-base font-medium"
+        className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-8 text-base font-medium"
       >
         <ArrowLeft className="w-4 h-4" /> Back to Dashboard
       </button>
 
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-8">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm p-8 mb-8">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-3">
-              <h1 className="text-3xl font-bold text-gray-900">{test.title}</h1>
-              <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${test.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{test.title}</h1>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${test.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-500 dark:bg-slate-800 dark:text-gray-400'}`}>
                 {test.is_active ? 'Active' : 'Inactive'}
               </span>
             </div>
-            <p className="text-gray-600 text-base mb-5">Topic: {test.topic}</p>
-            <div className="flex items-center gap-6 text-sm text-gray-700">
-              <span className="flex items-center gap-1.5"><Hash className="w-4 h-4 text-gray-500" /> PIN: <strong className="text-gray-900">{test.pin}</strong></span>
-              <span className="flex items-center gap-1.5"><FileText className="w-4 h-4 text-gray-500" /> {test.num_questions} questions</span>
-              <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-gray-500" /> {test.time_limit_minutes} min</span>
-              <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-gray-500" /> {test.attempts.length} attempts</span>
+            <p className="text-gray-600 dark:text-gray-400 text-base mb-5">Topic: {test.topic}</p>
+            <div className="flex items-center gap-6 text-sm text-gray-700 dark:text-gray-300">
+              <span className="flex items-center gap-1.5"><Hash className="w-4 h-4 text-gray-500 dark:text-gray-400" /> PIN: <strong className="text-gray-900 dark:text-white">{test.pin}</strong></span>
+              <span className="flex items-center gap-1.5"><FileText className="w-4 h-4 text-gray-500 dark:text-gray-400" /> {test.num_questions} questions</span>
+              <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" /> {test.time_limit_minutes} min</span>
+              <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-gray-500 dark:text-gray-400" /> {test.attempts.length} attempts</span>
             </div>
           </div>
           <div className="flex gap-2">
-            <button onClick={copyLinkOnly} title="Copy test link" className="inline-flex items-center gap-2 bg-primary-50 hover:bg-primary-100 text-primary-700 px-4 py-3 rounded-xl text-sm font-medium transition-colors">
+            <button onClick={copyLinkOnly} title="Copy test link" className="inline-flex items-center gap-2 bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/40 text-primary-700 dark:text-primary-400 px-4 py-3 rounded-xl text-sm font-medium transition-colors">
               <Link className="w-4 h-4" /> Copy Link
             </button>
-            <button onClick={copyPinOnly} title="Copy PIN code" className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-xl text-sm font-medium transition-colors">
+            <button onClick={copyPinOnly} title="Copy PIN code" className="inline-flex items-center gap-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 px-4 py-3 rounded-xl text-sm font-medium transition-colors">
               <Copy className="w-4 h-4" /> Copy PIN
             </button>
             <button onClick={downloadPDF} title="Download questions, answers and results as PDF" className="inline-flex items-center gap-2 bg-green-50 hover:bg-green-100 text-green-700 px-5 py-3 rounded-xl text-base font-medium transition-colors">
@@ -255,12 +255,12 @@ export default function TestDetail() {
       </div>
 
       {/* Questions */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-5">Questions</h2>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm p-8 mb-8">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-5">Questions</h2>
         <div className="space-y-4">
           {test.questions.sort((a, b) => a.order_num - b.order_num).map((q, i) => (
-            <div key={q.id} className="border border-gray-100 rounded-xl p-5">
-              <p className="font-medium text-gray-900 text-base mb-4">
+            <div key={q.id} className="border border-gray-100 dark:border-slate-700 rounded-xl p-5">
+              <p className="font-medium text-gray-900 dark:text-white text-base mb-4">
                 <span className="text-primary-600 mr-2">Q{i + 1}.</span>
                 {q.question_text}
               </p>
@@ -290,46 +290,46 @@ export default function TestDetail() {
       </div>
 
       {/* Results */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-5">Results ({test.attempts.length})</h2>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm p-8">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-5">Results ({test.attempts.length})</h2>
         {test.attempts.length === 0 ? (
-          <p className="text-gray-400 text-center py-8">No attempts yet</p>
+          <p className="text-gray-400 dark:text-gray-500 text-center py-8">No attempts yet</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="text-left py-3.5 px-4 text-xs font-semibold text-gray-600 uppercase">#</th>
-                  <th className="text-left py-3.5 px-4 text-xs font-semibold text-gray-600 uppercase">Candidate</th>
-                  <th className="text-left py-3.5 px-4 text-xs font-semibold text-gray-600 uppercase">Email</th>
-                  <th className="text-left py-3.5 px-4 text-xs font-semibold text-gray-600 uppercase">Score</th>
-                  <th className="text-left py-3.5 px-4 text-xs font-semibold text-gray-600 uppercase">Percentage</th>
-                  <th className="text-left py-3.5 px-4 text-xs font-semibold text-gray-600 uppercase">Status</th>
-                  <th className="text-left py-3.5 px-4 text-xs font-semibold text-gray-600 uppercase">Report</th>
+                <tr className="border-b border-gray-100 dark:border-slate-700">
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">#</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Candidate</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Email</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Score</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Percentage</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Status</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase">Report</th>
                 </tr>
               </thead>
               <tbody>
                 {test.attempts.map((a, i) => {
                   const pct = a.total_questions > 0 ? Math.round((a.score / a.total_questions) * 100) : 0;
                   return (
-                    <tr key={a.id} className="border-b border-gray-50 hover:bg-gray-50 align-middle">
-                      <td className="py-3.5 px-4 text-sm text-gray-600">{i + 1}</td>
-                      <td className="py-3.5 px-4 text-sm font-medium text-gray-900">
-                        <span className="inline-flex items-center gap-2"><User className="w-4 h-4 text-gray-500" />{a.candidate_name}</span>
+                    <tr key={a.id} className="border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50 align-middle">
+                      <td className="py-3.5 px-4 text-sm text-gray-600 dark:text-gray-400">{i + 1}</td>
+                      <td className="py-3.5 px-4 text-sm font-medium text-gray-900 dark:text-white">
+                        <span className="inline-flex items-center gap-2"><User className="w-4 h-4 text-gray-500 dark:text-gray-400" />{a.candidate_name}</span>
                       </td>
-                      <td className="py-3.5 px-4 text-sm text-gray-700">
-                        <span className="inline-flex items-center gap-2"><Mail className="w-4 h-4 text-gray-500" />{a.candidate_email}</span>
+                      <td className="py-3.5 px-4 text-sm text-gray-700 dark:text-gray-300">
+                        <span className="inline-flex items-center gap-2"><Mail className="w-4 h-4 text-gray-500 dark:text-gray-400" />{a.candidate_email}</span>
                       </td>
-                      <td className="py-3.5 px-4 text-sm font-semibold text-gray-900">{a.score}/{a.total_questions}</td>
+                      <td className="py-3.5 px-4 text-sm font-semibold text-gray-900 dark:text-white">{a.score}/{a.total_questions}</td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-24 bg-gray-100 rounded-full h-2">
+                          <div className="w-24 bg-gray-100 dark:bg-slate-700 rounded-full h-2">
                             <div
                               className={`h-2 rounded-full ${pct >= 70 ? 'bg-green-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`}
                               style={{ width: `${pct}%` }}
                             />
                           </div>
-                          <span className="text-sm font-medium text-gray-700">{pct}%</span>
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{pct}%</span>
                         </div>
                       </td>
                       <td className="py-3.5 px-4">
@@ -364,11 +364,11 @@ export default function TestDetail() {
       {/* Answer Report Modal */}
       {reportCandidate && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-slate-800">
               <div>
-                <h3 className="text-xl font-bold text-gray-900">Answer Report</h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Answer Report</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   {reportCandidate.candidate_name} ({reportCandidate.candidate_email}) — Score: {reportCandidate.score}/{reportCandidate.total_questions}
                 </p>
               </div>
@@ -382,7 +382,7 @@ export default function TestDetail() {
                     <Download className="w-4 h-4" /> Download PDF
                   </button>
                 )}
-                <button onClick={closeReport} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                <button onClick={closeReport} className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
               </div>

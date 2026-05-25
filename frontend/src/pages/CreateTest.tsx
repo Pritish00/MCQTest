@@ -111,17 +111,17 @@ export default function CreateTest() {
   if (created) {
     return (
       <div className="max-w-lg mx-auto mt-8">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm p-8 text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-8 h-8 text-green-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Test Created!</h2>
-          <p className="text-gray-600 mb-8">Share the link and PIN with candidates</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Test Created!</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-8">Share the link and PIN with candidates</p>
 
           <div className="space-y-3 mb-6 text-left">
-            <div className="bg-gray-50 rounded-xl p-4 flex items-center justify-between gap-3">
+            <div className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4 flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Test Link</label>
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Test Link</label>
                 <p className="text-sm text-primary-600 font-mono mt-1 break-all truncate">{testLink}</p>
               </div>
               <button
@@ -131,10 +131,10 @@ export default function CreateTest() {
                 <Link className="w-3.5 h-3.5" /> Copy Link
               </button>
             </div>
-            <div className="bg-gray-50 rounded-xl p-4 flex items-center justify-between gap-3">
+            <div className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4 flex items-center justify-between gap-3">
               <div>
-                <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">PIN Code</label>
-                <p className="text-2xl font-bold text-gray-900 mt-1 tracking-widest">{created.pin}</p>
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">PIN Code</label>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1 tracking-widest">{created.pin}</p>
               </div>
               <button
                 onClick={copyPinOnly}
@@ -147,7 +147,7 @@ export default function CreateTest() {
 
           <button
             onClick={() => navigate('/dashboard')}
-            className="w-full inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-3 rounded-xl font-medium transition-colors text-base"
+            className="w-full inline-flex items-center justify-center gap-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 px-5 py-3 rounded-xl font-medium transition-colors text-base"
           >
             <ExternalLink className="w-4 h-4" />
             Go to Dashboard
@@ -162,16 +162,16 @@ export default function CreateTest() {
     return (
       <div className="max-w-3xl mx-auto flex flex-col" style={{ height: 'calc(100vh - 120px)' }}>
         <div className="mb-6 shrink-0">
-          <h1 className="text-3xl font-bold text-gray-900">Review Questions</h1>
-          <p className="text-gray-600 text-base mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Review Questions</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-base mt-1">
             {preview.length} questions on <strong>{topic}</strong> — review before finalizing
           </p>
         </div>
 
-        <div className="flex-1 overflow-y-auto rounded-2xl border border-gray-200 bg-gray-50/50 p-4 space-y-4 min-h-0">
+        <div className="flex-1 overflow-y-auto rounded-2xl border border-gray-200 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-900/50 p-4 space-y-4 min-h-0">
           {preview.map((q, i) => (
-            <div key={i} className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-              <p className="font-medium text-gray-900 text-base mb-3">
+            <div key={i} className="bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm p-5">
+              <p className="font-medium text-gray-900 dark:text-white text-base mb-3">
                 <span className="text-primary-600 mr-2">Q{i + 1}.</span>
                 {q.question_text}
               </p>
@@ -198,8 +198,8 @@ export default function CreateTest() {
           ))}
         </div>
 
-        <div className="shrink-0 bg-white border border-gray-200 rounded-2xl p-4 flex items-center justify-between shadow-lg mt-4">
-          <p className="text-sm text-gray-600">
+        <div className="shrink-0 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-4 flex items-center justify-between shadow-lg mt-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             {preview.length} questions · <strong>{title}</strong> · {timeLimit} min
           </p>
           <div className="flex items-center gap-2">
@@ -243,21 +243,21 @@ export default function CreateTest() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-10">
-        <h1 className="text-3xl font-bold text-gray-900">Create New Test</h1>
-        <p className="text-gray-600 text-base mt-1">AI-powered MCQ generation using Groq AI</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create New Test</h1>
+        <p className="text-gray-600 dark:text-gray-400 text-base mt-1">AI-powered MCQ generation using Groq AI</p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm p-10">
         <form onSubmit={handleGenerate} className="space-y-7">
           <div>
-            <label className="block text-base font-medium text-gray-800 mb-2">Test Title</label>
+            <label className="block text-base font-medium text-gray-800 dark:text-gray-200 mb-2">Test Title</label>
             <div className="relative">
               <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-base text-gray-900"
+                className="w-full pl-11 pr-4 py-3.5 border border-gray-200 dark:border-slate-700 dark:bg-slate-800 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-base text-gray-900 dark:text-white"
                 placeholder="e.g. JavaScript Fundamentals Assessment"
                 required
               />
@@ -265,14 +265,14 @@ export default function CreateTest() {
           </div>
 
           <div>
-            <label className="block text-base font-medium text-gray-800 mb-2">Topic</label>
+            <label className="block text-base font-medium text-gray-800 dark:text-gray-200 mb-2">Topic</label>
             <div className="relative">
               <Sparkles className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                className="w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-base text-gray-900"
+                className="w-full pl-11 pr-4 py-3.5 border border-gray-200 dark:border-slate-700 dark:bg-slate-800 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-base text-gray-900 dark:text-white"
                 placeholder="e.g. JavaScript ES6+, React Hooks, Python Data Structures"
                 required
               />
@@ -282,7 +282,7 @@ export default function CreateTest() {
 
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="block text-base font-medium text-gray-800 mb-2">Number of Questions</label>
+              <label className="block text-base font-medium text-gray-800 dark:text-gray-200 mb-2">Number of Questions</label>
               <div className="relative">
                 <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -294,7 +294,7 @@ export default function CreateTest() {
                     if (!isNaN(val) && val > 0 && val <= 50) setNumQuestions(val);
                     else if (e.target.value === '') setNumQuestions(0 as any);
                   }}
-                  className="w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-base text-gray-900"
+                  className="w-full pl-11 pr-4 py-3.5 border border-gray-200 dark:border-slate-700 dark:bg-slate-800 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-base text-gray-900 dark:text-white"
                   placeholder="e.g. 15"
                   required
                 />
@@ -302,14 +302,14 @@ export default function CreateTest() {
               <p className="text-xs text-gray-500 mt-1">Max 50 questions</p>
             </div>
             <div>
-              <label className="block text-base font-medium text-gray-800 mb-2">Time Limit (minutes)</label>
+              <label className="block text-base font-medium text-gray-800 dark:text-gray-200 mb-2">Time Limit (minutes)</label>
               <div className="relative">
                 <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="number"
                   value={timeLimit}
                   onChange={(e) => setTimeLimit(Math.max(5, Math.min(180, parseInt(e.target.value) || 5)))}
-                  className="w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-base text-gray-900"
+                  className="w-full pl-11 pr-4 py-3.5 border border-gray-200 dark:border-slate-700 dark:bg-slate-800 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-base text-gray-900 dark:text-white"
                   min={5}
                   max={180}
                   required
