@@ -1,5 +1,6 @@
 import random
 import string
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
@@ -27,6 +28,13 @@ def preview_questions(data: GeneratePreview, admin: Admin = Depends(get_current_
 
 @router.post("/", response_model=TestResponse)
 def create_test(data: TestCreate, admin: Admin = Depends(get_current_admin), db: Session = Depends(get_db)):
+    # Check credits
+    if admin.credits_expire_at and admin.credits_expire_at < datetime.utcnow():
+        admin.credits = 0
+        db.commit()
+    if (admin.credits or 0) <= 0:
+        raise HTTPException(status_code=403, detail="No test credits remaining. Please contact support to add credits.")
+
     # Use pre-generated questions if provided, otherwise generate new ones
     if data.questions:
         questions_data = [q.model_dump() for q in data.questions]
@@ -65,6 +73,8 @@ def create_test(data: TestCreate, admin: Admin = Depends(get_current_admin), db:
         )
         db.add(question)
 
+    # Deduct one credit
+    admin.credits = (admin.credits or 0) - 1
     db.commit()
     db.refresh(test)
 

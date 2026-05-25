@@ -4,7 +4,7 @@ import api from '@/lib/api';
 import { TestPublic, ResultResponse } from '@/types';
 import {
   ChevronLeft, ChevronRight, Clock, Send, AlertTriangle,
-  CheckCircle2, XCircle, Trophy, RotateCcw, Maximize, ShieldAlert,
+  CheckCircle2, XCircle, Trophy, RotateCcw, Maximize, ShieldAlert, ClipboardCheck,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -207,7 +207,15 @@ export default function TakeTest() {
   if (result) {
     const isPassed = result.percentage >= 40;
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="max-w-3xl mx-auto flex items-center gap-3">
+            <ClipboardCheck className="w-6 h-6 text-primary-600" />
+            <span className="text-lg font-bold text-gray-900">MCQ Test Platform</span>
+          </div>
+        </div>
+        <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 text-center">
             <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${isPassed ? 'bg-green-100' : 'bg-red-100'}`}>
@@ -252,6 +260,7 @@ export default function TakeTest() {
             <p className="text-base text-gray-500">You may close this window now.</p>
           </div>
         </div>
+        </div>
       </div>
     );
   }
@@ -286,10 +295,16 @@ export default function TakeTest() {
     <div className="min-h-screen bg-gray-50">
       {/* Top bar */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div>
-            <h1 className="font-semibold text-gray-900 text-base">{test.title}</h1>
-            <p className="text-sm text-gray-500">{test.topic}</p>
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 pr-4 border-r border-gray-200">
+              <ClipboardCheck className="w-5 h-5 text-primary-600" />
+              <span className="text-sm font-bold text-gray-900">MCQ Test Platform</span>
+            </div>
+            <div>
+              <h1 className="font-semibold text-gray-900 text-base">{test.title}</h1>
+              <p className="text-sm text-gray-500">{test.topic}</p>
+            </div>
           </div>
           <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-base font-mono font-bold ${isUrgent ? 'bg-red-100 text-red-700 animate-pulse' : 'bg-gray-100 text-gray-800'}`}>
             <Clock className="w-4 h-4" />

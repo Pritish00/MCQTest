@@ -89,12 +89,6 @@ export default function Login() {
               Forgot Password?
             </Link>
           </p>
-          <p className="text-center text-base text-gray-600 mt-3">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-primary-600 hover:text-primary-700 font-medium">
-              Register
-            </Link>
-          </p>
         </div>
       </div>
     </div>

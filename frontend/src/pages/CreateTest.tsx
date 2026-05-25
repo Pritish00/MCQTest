@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
 import {
   Sparkles, BookOpen, Hash, Clock, Copy, ExternalLink,
@@ -26,6 +27,7 @@ export default function CreateTest() {
   const [preview, setPreview] = useState<PreviewQuestion[] | null>(null);
   const [created, setCreated] = useState<{ id: string; pin: string; title: string } | null>(null);
   const navigate = useNavigate();
+  const { refreshAdmin } = useAuth();
 
   const copyToClipboard = (text: string) => {
     if (navigator.clipboard && window.isSecureContext) {
@@ -71,6 +73,7 @@ export default function CreateTest() {
         questions: preview,
       });
       setCreated({ id: res.data.id, pin: res.data.pin, title: res.data.title });
+      refreshAdmin();
       toast.success('Test created successfully!');
     } catch (err: any) {
       toast.error(err.response?.data?.detail || 'Failed to create test');

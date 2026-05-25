@@ -150,7 +150,8 @@ export default function Dashboard() {
           {tests.map((test) => (
             <div
               key={test.id}
-              className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-7 shadow-sm hover:shadow-md transition-shadow"
+              onClick={() => navigate(`/dashboard/test/${test.id}`)}
+              className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-7 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -182,7 +183,7 @@ export default function Dashboard() {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 ml-4">
+                <div className="flex items-center gap-1 ml-4" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => copyLinkOnly(test)}
                     className="group relative p-3 text-gray-500 dark:text-gray-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-all"

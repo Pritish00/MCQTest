@@ -32,8 +32,8 @@ function App() {
         <Routes>
           {/* Guest routes */}
           <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
-          <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
           <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
+          <Route path="/setup/:secret" element={<GuestRoute><Register /></GuestRoute>} />
 
           {/* Admin routes */}
           <Route path="/dashboard" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>

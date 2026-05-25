@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -16,6 +16,8 @@ class Admin(Base):
     name = Column(String(100), nullable=False)
     email = Column(String(255), unique=True, nullable=False, index=True)
     hashed_password = Column(String(255), nullable=False)
+    credits = Column(Integer, default=10)
+    credits_expire_at = Column(DateTime, default=lambda: datetime.utcnow() + timedelta(days=30))
     created_at = Column(DateTime, default=datetime.utcnow)
 
     tests = relationship("Test", back_populates="admin")

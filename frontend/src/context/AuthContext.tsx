@@ -1,11 +1,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Admin } from '@/types';
+import api from '@/lib/api';
 
 interface AuthContextType {
   admin: Admin | null;
   token: string | null;
   login: (token: string, admin: Admin) => void;
   logout: () => void;
+  refreshAdmin: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -38,8 +40,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAdmin(null);
   };
 
+  const refreshAdmin = async () => {
+    try {
+      const res = await api.get('/auth/me');
+      const updated = res.data;
+      localStorage.setItem('admin', JSON.stringify(updated));
+      setAdmin(updated);
+    } catch {}
+  };
+
   return (
-    <AuthContext.Provider value={{ admin, token, login, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ admin, token, login, logout, refreshAdmin, isAuthenticated: !!token }}>
       {children}
     </AuthContext.Provider>
   );

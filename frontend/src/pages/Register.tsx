@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
 import { UserPlus, Mail, Lock, User, ClipboardCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Register() {
+  const { secret } = useParams<{ secret: string }>();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,7 +18,7 @@ export default function Register() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await api.post('/auth/register', { name, email, password });
+      const res = await api.post('/auth/register', { name, email, password, secret });
       login(res.data.access_token, res.data.admin);
       toast.success('Account created!');
       navigate('/dashboard');

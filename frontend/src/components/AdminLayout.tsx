@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import api from '@/lib/api';
 import {
   LayoutDashboard, PlusCircle, LogOut, ClipboardCheck, User,
-  Moon, Sun, Bell, Check,
+  Moon, Sun, Bell, Check, Coins, CalendarClock,
 } from 'lucide-react';
 
 interface Notification {
@@ -16,7 +16,7 @@ interface Notification {
 }
 
 export default function AdminLayout() {
-  const { admin, logout } = useAuth();
+  const { admin, logout, refreshAdmin } = useAuth();
   const { dark, toggle } = useTheme();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -33,6 +33,7 @@ export default function AdminLayout() {
   };
 
   useEffect(() => {
+    refreshAdmin();
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 15000);
     return () => clearInterval(interval);
@@ -93,6 +94,26 @@ export default function AdminLayout() {
             <PlusCircle className="w-5 h-5" />
             Create Test
           </NavLink>
+
+          {/* Credits */}
+          {admin && (
+            <div className="mt-4 mx-1 p-4 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700">
+              <div className="flex items-center gap-2 mb-2">
+                <Coins className="w-4 h-4 text-amber-500" />
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">Test Credits</span>
+              </div>
+              <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">{admin.credits ?? 0}</p>
+              {admin.credits_expire_at && (() => {
+                const days = Math.max(0, Math.ceil((new Date(admin.credits_expire_at).getTime() - Date.now()) / 86400000));
+                return (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
+                    <CalendarClock className="w-3 h-3" />
+                    {days > 0 ? `${days} days remaining` : 'Expired'}
+                  </p>
+                );
+              })()}
+            </div>
+          )}
         </nav>
 
         <div className="p-4 border-t border-gray-100 dark:border-slate-800">

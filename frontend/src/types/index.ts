@@ -2,6 +2,8 @@ export interface Admin {
   id: string;
   name: string;
   email: string;
+  credits: number;
+  credits_expire_at: string | null;
   created_at: string;
 }
 

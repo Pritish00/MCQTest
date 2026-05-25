@@ -6,12 +6,17 @@ from app.database import get_db
 from app.models import Admin, PasswordReset
 from app.schemas import AdminCreate, AdminLogin, Token, AdminResponse, ForgotPasswordRequest, ResetPasswordRequest
 from app.auth import hash_password, verify_password, create_access_token, get_current_admin
+from app.config import get_settings
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 
 @router.post("/register", response_model=Token)
 def register(data: AdminCreate, db: Session = Depends(get_db)):
+    settings = get_settings()
+    if not data.secret or data.secret != settings.ADMIN_REGISTER_SECRET:
+        raise HTTPException(status_code=403, detail="Invalid registration secret")
+
     existing = db.query(Admin).filter(Admin.email == data.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")

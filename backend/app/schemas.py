@@ -8,6 +8,7 @@ class AdminCreate(BaseModel):
     name: str
     email: str
     password: str
+    secret: Optional[str] = None
 
 
 class AdminLogin(BaseModel):
@@ -19,6 +20,8 @@ class AdminResponse(BaseModel):
     id: str
     name: str
     email: str
+    credits: int = 0
+    credits_expire_at: Optional[datetime] = None
     created_at: datetime
 
     class Config:
