@@ -6,9 +6,13 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from app.database import engine, Base
 from app.routes import auth_routes, test_routes, attempt_routes, notification_routes
+from app.migrations import run_migrations
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
+
+# Run column migrations for existing tables
+run_migrations()
 
 app = FastAPI(title="MCQ Test Platform API", version="1.0.0")
 
