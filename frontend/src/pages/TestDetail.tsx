@@ -57,20 +57,32 @@ export default function TestDetail() {
     return map[letter] || '—';
   };
 
+  const addPdfHeader = (doc: any) => {
+    doc.setFillColor(37, 99, 235);
+    doc.rect(0, 0, 210, 18, 'F');
+    doc.setFontSize(14);
+    doc.setTextColor(255, 255, 255);
+    doc.text('MCQ Test Platform', 14, 12);
+    doc.setFontSize(8);
+    doc.text(new Date().toLocaleDateString(), 196, 12, { align: 'right' });
+    doc.setTextColor(0);
+  };
+
   const downloadIndividualReport = () => {
     if (!answerReport || !reportCandidate || !test) return;
     const doc = new jsPDF();
+    addPdfHeader(doc);
     const pct = reportCandidate.total_questions > 0
       ? Math.round((reportCandidate.score / reportCandidate.total_questions) * 100)
       : 0;
 
     doc.setFontSize(18);
-    doc.text('Individual Answer Report', 14, 22);
+    doc.text('Individual Answer Report', 14, 32);
     doc.setFontSize(11);
     doc.setTextColor(100);
-    doc.text(`Test: ${test.title} | Topic: ${test.topic}`, 14, 30);
-    doc.text(`Candidate: ${reportCandidate.candidate_name} (${reportCandidate.candidate_email})`, 14, 36);
-    doc.text(`Score: ${reportCandidate.score}/${reportCandidate.total_questions} (${pct}%)`, 14, 42);
+    doc.text(`Test: ${test.title} | Topic: ${test.topic}`, 14, 40);
+    doc.text(`Candidate: ${reportCandidate.candidate_name} (${reportCandidate.candidate_email})`, 14, 46);
+    doc.text(`Score: ${reportCandidate.score}/${reportCandidate.total_questions} (${pct}%)`, 14, 52);
 
     const tableData = answerReport.map((ans, i) => [
       `${i + 1}`,
@@ -81,7 +93,7 @@ export default function TestDetail() {
     ]);
 
     autoTable(doc, {
-      startY: 50,
+      startY: 60,
       head: [['#', 'Question', 'Candidate Answer', 'Correct Answer', 'Result']],
       body: tableData,
       columnStyles: {
@@ -142,16 +154,17 @@ export default function TestDetail() {
   const downloadPDF = () => {
     if (!test) return;
     const doc = new jsPDF();
+    addPdfHeader(doc);
 
     doc.setFontSize(18);
-    doc.text(test.title, 14, 22);
+    doc.text(test.title, 14, 32);
     doc.setFontSize(11);
     doc.setTextColor(100);
-    doc.text(`Topic: ${test.topic} | Questions: ${test.num_questions} | Time: ${test.time_limit_minutes} min`, 14, 30);
+    doc.text(`Topic: ${test.topic} | Questions: ${test.num_questions} | Time: ${test.time_limit_minutes} min`, 14, 40);
 
     doc.setFontSize(13);
     doc.setTextColor(0);
-    doc.text('Questions & Answers', 14, 42);
+    doc.text('Questions & Answers', 14, 52);
 
     const tableData = test.questions
       .sort((a, b) => a.order_num - b.order_num)
@@ -163,7 +176,7 @@ export default function TestDetail() {
       ]);
 
     autoTable(doc, {
-      startY: 48,
+      startY: 58,
       head: [['#', 'Question', 'Options', 'Answer']],
       body: tableData,
       columnStyles: {

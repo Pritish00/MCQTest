@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import { TestListItem } from '@/types';
 import {
-  PlusCircle, Users, Clock, Hash, Copy, Eye, Trash2,
+  PlusCircle, Users, Clock, Hash, Copy, Eye,
   ToggleLeft, ToggleRight, FileText, AlertCircle, Link2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -60,16 +60,6 @@ export default function Dashboard() {
     }
   };
 
-  const deleteTest = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this test?')) return;
-    try {
-      await api.delete(`/tests/${id}`);
-      toast.success('Test deleted');
-      fetchTests();
-    } catch {
-      toast.error('Failed to delete test');
-    }
-  };
 
   const totalAttempts = tests.reduce((sum, t) => sum + t.attempt_count, 0);
   const activeTests = tests.filter((t) => t.is_active).length;
@@ -211,13 +201,6 @@ export default function Dashboard() {
                   >
                     {test.is_active ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}
                     <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">{test.is_active ? 'Deactivate' : 'Activate'}</span>
-                  </button>
-                  <button
-                    onClick={() => deleteTest(test.id)}
-                    className="group relative p-3 text-gray-500 dark:text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                    <span className="absolute -bottom-9 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Delete Test</span>
                   </button>
                 </div>
               </div>

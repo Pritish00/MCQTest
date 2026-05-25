@@ -3,8 +3,10 @@ Lightweight migration runner — executes on app startup.
 Each migration is idempotent (safe to re-run).
 Works with both MySQL and SQL Server.
 """
+from datetime import datetime, timedelta
 from sqlalchemy import text, inspect
-from app.database import engine
+from sqlalchemy.orm import Session
+from app.database import engine, SessionLocal
 
 
 def run_migrations():
@@ -38,3 +40,23 @@ def run_migrations():
                 conn.commit()
             except Exception:
                 conn.rollback()
+
+
+def cleanup_old_tests():
+    """Delete tests older than 60 days (and their questions, attempts, answers via cascade)."""
+    from app.models import Test
+    db: Session = SessionLocal()
+    try:
+        cutoff = datetime.utcnow() - timedelta(days=60)
+        old_tests = db.query(Test).filter(Test.created_at < cutoff).all()
+        count = len(old_tests)
+        for test in old_tests:
+            db.delete(test)
+        if count > 0:
+            db.commit()
+            print(f"[Cleanup] Deleted {count} tests older than 60 days")
+    except Exception as e:
+        db.rollback()
+        print(f"[Cleanup] Error: {e}")
+    finally:
+        db.close()
