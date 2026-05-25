@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '@/lib/api';
 import { Mail, KeyRound, Lock, ArrowLeft, ShieldCheck } from 'lucide-react';
@@ -13,6 +13,25 @@ export default function ForgotPassword() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const captchaData = useMemo(() => {
+    const chars = Array.from({ length: 6 }, () => ({
+      rotate: Math.random() * 30 - 15,
+      y: Math.random() * 10 - 5,
+      scale: 0.85 + Math.random() * 0.3,
+    }));
+    const lines = Array.from({ length: 5 }, () => ({
+      x1: Math.random() * 30, y1: Math.random() * 50,
+      x2: 250 + Math.random() * 50, y2: Math.random() * 50,
+      color: `rgba(${Math.floor(Math.random() * 150)},${Math.floor(Math.random() * 150)},${Math.floor(Math.random() * 150)},0.4)`,
+    }));
+    const dots = Array.from({ length: 40 }, () => ({
+      cx: Math.random() * 300, cy: Math.random() * 56,
+      r: Math.random() * 2 + 0.5,
+      color: `rgba(0,0,0,${(Math.random() * 0.3).toFixed(2)})`,
+    }));
+    return { chars, lines, dots };
+  }, [resetCode]);
 
   const handleRequestCode = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,10 +115,44 @@ export default function ForgotPassword() {
           ) : (
             <>
               {resetCode && (
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-center">
-                  <p className="text-xs font-medium text-amber-700 uppercase tracking-wider mb-1">Your Reset Code</p>
-                  <p className="text-3xl font-bold text-amber-900 tracking-[0.3em] font-mono">{resetCode}</p>
-                  <p className="text-xs text-amber-600 mt-2">Expires in 10 minutes</p>
+                <div className="mb-6 text-center">
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">Enter this code below</p>
+                  <div className="inline-block rounded-lg overflow-hidden border border-gray-300 shadow-inner">
+                    <svg width="280" height="56" viewBox="0 0 280 56" className="select-none" style={{ background: 'linear-gradient(135deg, #f1f5f9, #e8ecf0, #f3f4f6)' }}>
+                      {/* Noise dots */}
+                      {captchaData.dots.map((d, i) => (
+                        <circle key={`d${i}`} cx={d.cx} cy={d.cy} r={d.r} fill={d.color} />
+                      ))}
+                      {/* Crossing lines */}
+                      {captchaData.lines.map((l, i) => (
+                        <line key={`l${i}`} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={l.color} strokeWidth={1.5} />
+                      ))}
+                      {/* Characters */}
+                      {resetCode.split('').map((digit, i) => {
+                        const s = captchaData.chars[i];
+                        const x = 28 + i * 40;
+                        const y = 34 + s.y;
+                        const color = ['#1e40af', '#7c3aed', '#0f766e', '#c2410c', '#be123c', '#4338ca'][i % 6];
+                        return (
+                          <text
+                            key={i}
+                            x={x}
+                            y={y}
+                            textAnchor="middle"
+                            fontSize={28 * s.scale}
+                            fontWeight="800"
+                            fontFamily="'Courier New', monospace"
+                            fill={color}
+                            transform={`rotate(${s.rotate}, ${x}, ${y})`}
+                            style={{ userSelect: 'none' }}
+                          >
+                            {digit}
+                          </text>
+                        );
+                      })}
+                    </svg>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-2">Expires in 10 minutes</p>
                 </div>
               )}
               <form onSubmit={handleReset} className="space-y-5">
