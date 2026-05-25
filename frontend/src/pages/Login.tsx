@@ -28,14 +28,14 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl mb-4">
             <ClipboardCheck className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-white">MCQ Test Platform</h1>
-          <p className="text-primary-200 mt-2">Admin Portal — Sign in to manage your tests</p>
+          <p className="text-slate-400 mt-2">Admin Portal — Sign in to manage your tests</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8">
