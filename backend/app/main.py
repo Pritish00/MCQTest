@@ -40,12 +40,10 @@ FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent / "frontend" / "dis
 if FRONTEND_DIR.is_dir():
     app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIR / "assets")), name="static-assets")
 
-    @app.get("/{full_path:path}")
-    async def serve_spa(request: Request, full_path: str):
-        if full_path.startswith("api/"):
-            from fastapi.responses import JSONResponse
-            return JSONResponse(status_code=404, content={"detail": "Not found"})
-        file_path = FRONTEND_DIR / full_path
-        if file_path.is_file():
-            return FileResponse(str(file_path))
-        return FileResponse(str(FRONTEND_DIR / "index.html"))
+    @app.middleware("http")
+    async def serve_spa(request: Request, call_next):
+        response = await call_next(request)
+        # If no API route matched and it's a page navigation (not /api/), serve index.html
+        if response.status_code == 404 and not request.url.path.startswith("/api/") and not request.url.path.startswith("/assets/"):
+            return FileResponse(str(FRONTEND_DIR / "index.html"))
+        return response
