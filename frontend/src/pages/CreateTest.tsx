@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
 import {
   Sparkles, BookOpen, Hash, Clock, Copy, ExternalLink,
-  ArrowLeft, CheckCircle2, RefreshCw, Check, Link,
+  ArrowLeft, CheckCircle2, RefreshCw, Check, Link, Upload, FileText, X,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -26,6 +26,7 @@ export default function CreateTest() {
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState<PreviewQuestion[] | null>(null);
   const [created, setCreated] = useState<{ id: string; pin: string; title: string } | null>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const navigate = useNavigate();
   const { refreshAdmin } = useAuth();
 
@@ -48,10 +49,21 @@ export default function CreateTest() {
     e.preventDefault();
     setGenerating(true);
     try {
-      const res = await api.post('/tests/preview', {
-        topic,
-        num_questions: numQuestions,
-      });
+      let res;
+      if (pdfFile) {
+        const formData = new FormData();
+        formData.append('topic', topic);
+        formData.append('num_questions', String(numQuestions));
+        formData.append('pdf', pdfFile);
+        res = await api.post('/tests/preview-with-pdf', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      } else {
+        res = await api.post('/tests/preview', {
+          topic,
+          num_questions: numQuestions,
+        });
+      }
       setPreview(res.data);
       toast.success('Questions generated! Review them below.');
     } catch (err: any) {
@@ -85,10 +97,21 @@ export default function CreateTest() {
   const handleRegenerate = async () => {
     setGenerating(true);
     try {
-      const res = await api.post('/tests/preview', {
-        topic,
-        num_questions: numQuestions,
-      });
+      let res;
+      if (pdfFile) {
+        const formData = new FormData();
+        formData.append('topic', topic);
+        formData.append('num_questions', String(numQuestions));
+        formData.append('pdf', pdfFile);
+        res = await api.post('/tests/preview-with-pdf', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      } else {
+        res = await api.post('/tests/preview', {
+          topic,
+          num_questions: numQuestions,
+        });
+      }
       setPreview(res.data);
       toast.success('New questions generated!');
     } catch (err: any) {
@@ -281,6 +304,47 @@ export default function CreateTest() {
               />
             </div>
             <p className="text-sm text-gray-500 mt-2">Be specific for better quality questions</p>
+          </div>
+
+          <div>
+            <label className="block text-base font-medium text-gray-800 dark:text-gray-200 mb-2">Reference PDF <span className="text-sm font-normal text-gray-500">(optional)</span></label>
+            {pdfFile ? (
+              <div className="flex items-center gap-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-xl px-4 py-3">
+                <FileText className="w-5 h-5 text-primary-600 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-primary-700 dark:text-primary-300 truncate">{pdfFile.name}</p>
+                  <p className="text-xs text-primary-500">{(pdfFile.size / 1024).toFixed(0)} KB</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPdfFile(null)}
+                  className="p-1.5 hover:bg-primary-100 dark:hover:bg-primary-800 rounded-lg transition-colors"
+                >
+                  <X className="w-4 h-4 text-primary-600" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex items-center justify-center gap-3 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-xl px-4 py-6 cursor-pointer hover:border-primary-400 hover:bg-primary-50/50 dark:hover:bg-primary-900/10 transition-all">
+                <Upload className="w-5 h-5 text-gray-400" />
+                <span className="text-sm text-gray-500 dark:text-gray-400">Upload a PDF to generate questions from its content</span>
+                <input
+                  type="file"
+                  accept=".pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (file.size > 10 * 1024 * 1024) {
+                        toast.error('PDF must be under 10 MB');
+                        return;
+                      }
+                      setPdfFile(file);
+                    }
+                  }}
+                />
+              </label>
+            )}
+            <p className="text-xs text-gray-500 mt-1">Max 10 MB. AI will generate questions based on the PDF content + topic</p>
           </div>
 
           <div className="grid grid-cols-2 gap-6">

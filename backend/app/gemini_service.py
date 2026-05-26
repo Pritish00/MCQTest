@@ -3,8 +3,12 @@ from groq import Groq
 from app.config import get_settings
 
 
-def _generate_batch(client, topic: str, count: int) -> list[dict]:
-    prompt = f"""Generate exactly {count} multiple choice questions on the topic: "{topic}".
+def _generate_batch(client, topic: str, count: int, pdf_context: str = "") -> list[dict]:
+    context_block = ""
+    if pdf_context:
+        context_block = f"""\n\nUse the following reference material to generate questions. The questions MUST be based on the content provided below. You may also use your general knowledge of the topic to supplement.\n\n--- REFERENCE MATERIAL ---\n{pdf_context[:6000]}\n--- END REFERENCE MATERIAL ---\n"""
+
+    prompt = f"""Generate exactly {count} multiple choice questions on the topic: "{topic}".{context_block}
 
 Return ONLY a valid JSON array with no extra text. Each object must have exactly these keys:
 - "question_text": the question string
@@ -51,7 +55,7 @@ Return ONLY the JSON array, no markdown formatting, no code blocks."""
     return valid
 
 
-def generate_mcq_questions(topic: str, num_questions: int) -> list[dict]:
+def generate_mcq_questions(topic: str, num_questions: int, pdf_context: str = "") -> list[dict]:
     settings = get_settings()
     client = Groq(api_key=settings.GROQ_API_KEY)
 
@@ -63,7 +67,7 @@ def generate_mcq_questions(topic: str, num_questions: int) -> list[dict]:
         needed = num_questions - len(all_questions)
         batch_size = min(needed, 15)
         try:
-            batch = _generate_batch(client, topic, batch_size)
+            batch = _generate_batch(client, topic, batch_size, pdf_context)
             all_questions.extend(batch[:needed])
         except Exception:
             pass

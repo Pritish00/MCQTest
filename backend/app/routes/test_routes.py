@@ -1,7 +1,8 @@
 import random
 import string
+import fitz
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
@@ -23,6 +24,40 @@ def preview_questions(data: GeneratePreview, admin: Admin = Depends(get_current_
         questions_data = generate_mcq_questions(data.topic, data.num_questions)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate questions: {str(e)}")
+    return [PreviewQuestion(**q) for q in questions_data]
+
+
+@router.post("/preview-with-pdf", response_model=list[PreviewQuestion])
+async def preview_with_pdf(
+    topic: str = Form(...),
+    num_questions: int = Form(...),
+    pdf: UploadFile = File(...),
+    admin: Admin = Depends(get_current_admin),
+):
+    if not pdf.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+
+    content = await pdf.read()
+    if len(content) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="PDF must be under 10 MB")
+
+    try:
+        doc = fitz.open(stream=content, filetype="pdf")
+        text = ""
+        for page in doc:
+            text += page.get_text()
+        doc.close()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Failed to read PDF file")
+
+    if len(text.strip()) < 50:
+        raise HTTPException(status_code=400, detail="PDF has too little text content to generate questions")
+
+    try:
+        questions_data = generate_mcq_questions(topic, num_questions, pdf_context=text)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate questions: {str(e)}")
+
     return [PreviewQuestion(**q) for q in questions_data]
 
 
