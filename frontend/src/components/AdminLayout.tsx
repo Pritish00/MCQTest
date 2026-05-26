@@ -97,7 +97,7 @@ export default function AdminLayout() {
 
           {/* Credits */}
           {admin && (
-            <div className="mt-4 mx-1 p-4 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700">
+            <div className="mt-8 mx-1 p-4 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700">
               <div className="flex items-center gap-2 mb-2">
                 <Coins className="w-4 h-4 text-amber-500" />
                 <span className="text-sm font-semibold text-gray-900 dark:text-white">Test Credits</span>
