@@ -270,7 +270,7 @@ export default function CreateTest() {
     <div className="max-w-2xl mx-auto">
       <div className="mb-10">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Create New Test</h1>
-        <p className="text-gray-600 dark:text-gray-400 text-base mt-1">AI-powered MCQ generation using Groq AI</p>
+        <p className="text-gray-600 dark:text-gray-400 text-base mt-1">Create a new MCQ test for your candidates</p>
       </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm p-10">
