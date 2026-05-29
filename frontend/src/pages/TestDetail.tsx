@@ -62,7 +62,7 @@ export default function TestDetail() {
     doc.rect(0, 0, 210, 18, 'F');
     doc.setFontSize(14);
     doc.setTextColor(255, 255, 255);
-    doc.text('MCQ Test Platform', 14, 12);
+    doc.text('SnapIQ', 14, 12);
     doc.setFontSize(8);
     doc.text(new Date().toLocaleDateString(), 196, 12, { align: 'right' });
     doc.setTextColor(0);

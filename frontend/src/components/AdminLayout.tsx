@@ -79,7 +79,7 @@ export default function AdminLayout() {
               <ClipboardCheck className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="font-bold text-gray-900 dark:text-white text-lg">MCQ Platform</h1>
+              <h1 className="font-bold text-gray-900 dark:text-white text-lg">SnapIQ</h1>
               <p className="text-xs text-gray-500 dark:text-gray-400">Admin Portal</p>
             </div>
           </div>

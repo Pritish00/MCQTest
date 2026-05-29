@@ -46,7 +46,7 @@ export default function Register() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl mb-4">
             <ClipboardCheck className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-white">MCQ Test Platform</h1>
+          <h1 className="text-3xl font-bold text-white">SnapIQ</h1>
           <p className="text-slate-400 mt-2">
             {step === 'auth' ? 'Enter your setup key to continue' : 'Create your admin account'}
           </p>

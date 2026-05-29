@@ -17,7 +17,7 @@ run_migrations()
 # Delete tests older than 60 days
 cleanup_old_tests()
 
-app = FastAPI(title="MCQ Test Platform API", version="1.0.0")
+app = FastAPI(title="SnapIQ API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,

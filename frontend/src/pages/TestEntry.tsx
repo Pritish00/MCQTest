@@ -63,7 +63,7 @@ export default function TestEntry() {
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center gap-3">
           <ClipboardCheck className="w-6 h-6 text-primary-600" />
-          <span className="text-lg font-bold text-gray-900">MCQ Test Platform</span>
+          <span className="text-lg font-bold text-gray-900">SnapIQ</span>
         </div>
       </div>
 

@@ -212,7 +212,7 @@ export default function TakeTest() {
         <div className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="max-w-3xl mx-auto flex items-center gap-3">
             <ClipboardCheck className="w-6 h-6 text-primary-600" />
-            <span className="text-lg font-bold text-gray-900">MCQ Test Platform</span>
+            <span className="text-lg font-bold text-gray-900">SnapIQ</span>
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center p-4">
@@ -299,7 +299,7 @@ export default function TakeTest() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 pr-4 border-r border-gray-200">
               <ClipboardCheck className="w-5 h-5 text-primary-600" />
-              <span className="text-sm font-bold text-gray-900">MCQ Test Platform</span>
+              <span className="text-sm font-bold text-gray-900">SnapIQ</span>
             </div>
             <div>
               <h1 className="font-semibold text-gray-900 text-base">{test.title}</h1>

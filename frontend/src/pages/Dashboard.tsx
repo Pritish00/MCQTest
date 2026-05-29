@@ -69,7 +69,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-between mb-10">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-          <p className="text-gray-600 dark:text-gray-400 text-base mt-1">Manage your MCQ tests and view results</p>
+          <p className="text-gray-600 dark:text-gray-400 text-base mt-1">Manage your tests and view results</p>
         </div>
         <Link
           to="/dashboard/create-test"
