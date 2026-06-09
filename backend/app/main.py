@@ -44,10 +44,17 @@ def health_check():
 # ─── EmpTracking Reverse Proxy to Node.js on port 3000 ───
 NODE_BACKEND = "http://127.0.0.1:3000"
 
+# Serve frontend static files in production
+FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
+if FRONTEND_DIR.is_dir():
+    app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIR / "assets")), name="static-assets")
+
+
 @app.middleware("http")
-async def emptracking_proxy_middleware(request: Request, call_next):
+async def combined_middleware(request: Request, call_next):
     path = request.url.path
-    # Proxy all /empTracking requests to Node.js BEFORE anything else
+
+    # 1. Proxy /empTracking to Node.js — handle FIRST, before anything else
     if path == "/empTracking" or path.startswith("/empTracking/"):
         target_url = f"{NODE_BACKEND}{path}"
         query = str(request.url.query)
@@ -72,7 +79,16 @@ async def emptracking_proxy_middleware(request: Request, call_next):
                 return Response(content=resp.content, status_code=resp.status_code, headers=resp_headers)
         except Exception as e:
             return Response(content=f"Proxy error: {e}", status_code=502)
-    return await call_next(request)
+
+    # 2. Normal request processing
+    response = await call_next(request)
+
+    # 3. SPA fallback for SnapIQ frontend
+    if FRONTEND_DIR.is_dir() and response.status_code == 404 and not path.startswith("/api/") and not path.startswith("/assets/"):
+        return FileResponse(str(FRONTEND_DIR / "index.html"))
+
+    return response
+
 
 @app.websocket("/empTracking/socket.io/")
 async def proxy_ws(websocket: WebSocket):
@@ -97,16 +113,3 @@ async def proxy_ws(websocket: WebSocket):
             await asyncio.gather(forward_to_backend(), forward_to_client())
     except Exception:
         pass
-
-
-# Serve frontend static files in production
-FRONTEND_DIR = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
-if FRONTEND_DIR.is_dir():
-    app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIR / "assets")), name="static-assets")
-
-    @app.middleware("http")
-    async def serve_spa(request: Request, call_next):
-        response = await call_next(request)
-        if response.status_code == 404 and not request.url.path.startswith("/api/") and not request.url.path.startswith("/assets/"):
-            return FileResponse(str(FRONTEND_DIR / "index.html"))
-        return response
