@@ -4,7 +4,7 @@ from pathlib import Path
 from fastapi import FastAPI, Request, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse, Response
 from app.database import engine, Base
 from app.routes import auth_routes, test_routes, attempt_routes, notification_routes
 from app.migrations import run_migrations, cleanup_old_tests
@@ -44,33 +44,35 @@ def health_check():
 # ─── EmpTracking Reverse Proxy to Node.js on port 3000 ───
 NODE_BACKEND = "http://127.0.0.1:3000"
 
-@app.get("/empTracking")
-async def proxy_emptracking_root(request: Request):
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(
-            f"{NODE_BACKEND}/empTracking",
-            headers={k: v for k, v in request.headers.items() if k.lower() != "host"},
-            timeout=30.0,
-        )
-        excluded = {"transfer-encoding", "content-encoding", "content-length"}
-        headers = {k: v for k, v in resp.headers.items() if k.lower() not in excluded}
-        return StreamingResponse(iter([resp.content]), status_code=resp.status_code, headers=headers)
-
-@app.api_route("/empTracking/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
-async def proxy_emptracking(request: Request, path: str):
-    async with httpx.AsyncClient() as client:
-        url = f"{NODE_BACKEND}/empTracking/{path}"
-        resp = await client.request(
-            method=request.method,
-            url=url,
-            headers={k: v for k, v in request.headers.items() if k.lower() != "host"},
-            content=await request.body(),
-            params=request.query_params,
-            timeout=30.0,
-        )
-        excluded = {"transfer-encoding", "content-encoding", "content-length"}
-        headers = {k: v for k, v in resp.headers.items() if k.lower() not in excluded}
-        return StreamingResponse(iter([resp.content]), status_code=resp.status_code, headers=headers)
+@app.middleware("http")
+async def emptracking_proxy_middleware(request: Request, call_next):
+    path = request.url.path
+    # Proxy all /empTracking requests to Node.js BEFORE anything else
+    if path == "/empTracking" or path.startswith("/empTracking/"):
+        target_url = f"{NODE_BACKEND}{path}"
+        query = str(request.url.query)
+        if query:
+            target_url += f"?{query}"
+        try:
+            async with httpx.AsyncClient(follow_redirects=True) as client:
+                body = await request.body()
+                fwd_headers = {}
+                for k, v in request.headers.items():
+                    if k.lower() not in ("host", "transfer-encoding"):
+                        fwd_headers[k] = v
+                resp = await client.request(
+                    method=request.method,
+                    url=target_url,
+                    headers=fwd_headers,
+                    content=body,
+                    timeout=30.0,
+                )
+                excluded = {"transfer-encoding", "content-encoding", "content-length"}
+                resp_headers = {k: v for k, v in resp.headers.items() if k.lower() not in excluded}
+                return Response(content=resp.content, status_code=resp.status_code, headers=resp_headers)
+        except Exception as e:
+            return Response(content=f"Proxy error: {e}", status_code=502)
+    return await call_next(request)
 
 @app.websocket("/empTracking/socket.io/")
 async def proxy_ws(websocket: WebSocket):
@@ -105,7 +107,6 @@ if FRONTEND_DIR.is_dir():
     @app.middleware("http")
     async def serve_spa(request: Request, call_next):
         response = await call_next(request)
-        # If no API route matched and it's a page navigation (not /api/), serve index.html
-        if response.status_code == 404 and not request.url.path.startswith("/api/") and not request.url.path.startswith("/assets/") and not request.url.path.startswith("/empTracking"):
+        if response.status_code == 404 and not request.url.path.startswith("/api/") and not request.url.path.startswith("/assets/"):
             return FileResponse(str(FRONTEND_DIR / "index.html"))
         return response
