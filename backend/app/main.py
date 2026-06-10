@@ -90,26 +90,39 @@ async def combined_middleware(request: Request, call_next):
     return response
 
 
-@app.websocket("/empTracking/socket.io/")
-async def proxy_ws(websocket: WebSocket):
+async def _proxy_websocket(websocket: WebSocket):
     await websocket.accept()
     query = str(websocket.scope.get("query_string", b""), "utf-8")
     ws_url = f"ws://127.0.0.1:3000/empTracking/socket.io/?{query}"
     try:
-        async with ws_lib.connect(ws_url) as backend_ws:
+        async with ws_lib.connect(ws_url, max_size=10_000_000) as backend_ws:
             async def forward_to_backend():
                 try:
                     while True:
-                        data = await websocket.receive_text()
-                        await backend_ws.send(data)
+                        msg = await websocket.receive()
+                        if "text" in msg:
+                            await backend_ws.send(msg["text"])
+                        elif "bytes" in msg:
+                            await backend_ws.send(msg["bytes"])
                 except Exception:
                     pass
             async def forward_to_client():
                 try:
                     async for msg in backend_ws:
-                        await websocket.send_text(msg)
+                        if isinstance(msg, str):
+                            await websocket.send_text(msg)
+                        else:
+                            await websocket.send_bytes(msg)
                 except Exception:
                     pass
             await asyncio.gather(forward_to_backend(), forward_to_client())
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"WebSocket proxy error: {e}")
+
+@app.websocket("/empTracking/socket.io/")
+async def proxy_ws_slash(websocket: WebSocket):
+    await _proxy_websocket(websocket)
+
+@app.websocket("/empTracking/socket.io")
+async def proxy_ws(websocket: WebSocket):
+    await _proxy_websocket(websocket)
