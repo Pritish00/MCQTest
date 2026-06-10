@@ -95,7 +95,7 @@ async def _proxy_websocket(websocket: WebSocket):
     query = str(websocket.scope.get("query_string", b""), "utf-8")
     ws_url = f"ws://127.0.0.1:3000/empTracking/socket.io/?{query}"
     try:
-        async with ws_lib.connect(ws_url, max_size=10_000_000) as backend_ws:
+        async with ws_lib.connect(ws_url, max_size=10_000_000, ping_interval=None, ping_timeout=None, close_timeout=60) as backend_ws:
             async def forward_to_backend():
                 try:
                     while True:
